@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+  },
+  "navigationStyle": "custom",
+  "navigationBarTextStyle": "white",
+  "navigationBarTitleText": "Q版表情包制作"
+
+}

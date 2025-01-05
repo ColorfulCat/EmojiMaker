@@ -1,0 +1,96 @@
+<!--index.wxml-->
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <!-- 魔法星星背景 -->
+    <view class="magic-stars"></view>
+    
+    <!-- 表情预览区域 -->
+    <view class="card-wrapper {{isFlipping ? 'flipping' : ''}} {{shake ? 'shake' : ''}}">
+      <view class="emoji-preview" bindtap="previewImage">
+        <view class="magic-glow"></view>
+        <image class="emoji-image {{isGenerating ? 'generating' : ''}}" 
+               src="{{emojiUrl || '/assets/happy.png'}}" 
+               mode="aspectFit">
+        </image>
+        <!-- 添加生成中蒙层 -->
+        <view class="generating-mask" wx:if="{{isGenerating}}">
+          <view class="loading-spinner"></view>
+          <text>正在生成...</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 输入区域 -->
+    <view class="input-section safe-area-bottom">
+      <!-- 顶部按钮区域 -->
+      <view class="top-actions">
+        <view class="action-btn random-btn" bindtap="showRandomConfirm">
+          <text class="iconfont icon-random"></text>
+          <text>随机生成</text>
+        </view>
+        <view class="action-btn history-btn" bindtap="toggleHistory">
+          <text class="iconfont icon-history"></text>
+          <text>历史记录</text>
+        </view>
+      </view>
+
+      <textarea class="text-input magic-border" 
+                placeholder="输入表情包内容..." 
+                placeholder-class="placeholder"
+                value="{{mainText}}"
+                maxlength="100"
+                disabled="{{isGenerating}}"
+                bindinput="onMainTextChange" />
+      
+      <textarea class="caption-input magic-border" 
+                placeholder="输入配文（选填）..." 
+                placeholder-class="placeholder"
+                value="{{captionText}}"
+                maxlength="50"
+                disabled="{{isGenerating}}"
+                bindinput="onCaptionTextChange" />
+      
+      <view class="btn-container">
+        <button class="generate-btn magic-btn {{isGenerating ? 'disabled' : ''}}" 
+                bindtap="generateEmoji"
+                disabled="{{isGenerating}}"
+                hover-class="{{!isGenerating ? 'btn-hover' : ''}}">
+          <text class="btn-text">{{isGenerating ? '施法中...' : '施展魔法'}}</text>
+          <view class="magic-sparkle"></view>
+        </button>
+      </view>
+    </view>
+    
+    <!-- 历史记录弹窗 -->
+    <view class="history-modal {{showHistory ? 'show' : ''}}" catchtap="toggleHistory">
+      <view class="history-content" catchtap="return">
+        <view class="history-header">
+          <text>历史记录</text>
+          <view class="close-btn" catchtap="toggleHistory">×</view>
+        </view>
+        <scroll-view scroll-y class="history-list">
+          <view class="history-item" wx:for="{{historyList}}" wx:key="id">
+            <image class="history-image" 
+                   src="{{item.imageUrl}}" 
+                   mode="aspectFill" 
+                   catchtap="previewHistoryImage" 
+                   data-image-url="{{item.imageUrl}}" />
+            <view class="history-info">
+              <text class="history-prompt">{{item.mainText}}</text>
+              <text class="history-caption" wx:if="{{item.captionText}}">{{item.captionText}}</text>
+              <text class="history-time">{{item.createTime}}</text>
+            </view>
+            <view class="history-actions">
+              <view class="action-btn apply-btn" 
+                    catchtap="showApplyConfirm" 
+                    data-prompt="{{item.prompt}}">应用</view>
+              <view class="action-btn delete-btn" 
+                    catchtap="showDeleteConfirm" 
+                    data-id="{{item.id}}">删除</view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
