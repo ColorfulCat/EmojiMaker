@@ -9,7 +9,7 @@
       <view class="emoji-preview" bindtap="previewImage">
         <view class="magic-glow"></view>
         <image class="emoji-image {{isGenerating ? 'generating' : ''}}" 
-               src="{{emojiUrl || '/assets/happy.png'}}" 
+               src="{{emojiUrl || '/assets/avatar.png'}}" 
                mode="aspectFit">
         </image>
         <!-- 添加生成中蒙层 -->
@@ -24,12 +24,14 @@
     <view class="input-section safe-area-bottom">
       <!-- 顶部按钮区域 -->
       <view class="top-actions">
-        <view class="action-btn random-btn" bindtap="showRandomConfirm">
-          <text class="iconfont icon-random"></text>
+        <view class="action-btn random-btn {{isGenerating ? 'disabled' : ''}}" 
+              bindtap="{{!isGenerating ? 'showRandomConfirm' : ''}}"
+              hover-class="{{!isGenerating ? 'btn-hover' : ''}}">
           <text>随机生成</text>
         </view>
-        <view class="action-btn history-btn" bindtap="toggleHistory">
-          <text class="iconfont icon-history"></text>
+        <view class="action-btn history-btn {{isGenerating ? 'disabled' : ''}}" 
+              bindtap="{{!isGenerating ? 'toggleHistory' : ''}}"
+              hover-class="{{!isGenerating ? 'btn-hover' : ''}}">
           <text>历史记录</text>
         </view>
       </view>
@@ -40,22 +42,30 @@
                 value="{{mainText}}"
                 maxlength="100"
                 disabled="{{isGenerating}}"
-                bindinput="onMainTextChange" />
+                bindinput="onMainTextChange"
+                cursor-spacing="20"
+                auto-focus="{{false}}"
+                show-confirm-bar="{{false}}"
+                selection-start="-1"
+                selection-end="-1"
+                hold-keyboard="{{false}}"
+                adjust-position="{{true}}" />
       
-      <textarea class="caption-input magic-border" 
-                placeholder="输入配文（选填）..." 
-                placeholder-class="placeholder"
-                value="{{captionText}}"
-                maxlength="50"
-                disabled="{{isGenerating}}"
-                bindinput="onCaptionTextChange" />
+      <input class="caption-input magic-border" 
+             placeholder="输入配文（选填）..." 
+             placeholder-class="placeholder"
+             value="{{captionText}}"
+             maxlength="50"
+             disabled="{{isGenerating}}"
+             bindinput="onCaptionTextChange"
+             cursor-spacing="20" />
       
       <view class="btn-container">
         <button class="generate-btn magic-btn {{isGenerating ? 'disabled' : ''}}" 
                 bindtap="generateEmoji"
                 disabled="{{isGenerating}}"
                 hover-class="{{!isGenerating ? 'btn-hover' : ''}}">
-          <text class="btn-text">{{isGenerating ? '施法中...' : '施展魔法'}}</text>
+          <text class="btn-text">{{isGenerating ? '创作中...' : '创作表情包'}}</text>
           <view class="magic-sparkle"></view>
         </button>
       </view>
@@ -83,10 +93,14 @@
             <view class="history-actions">
               <view class="action-btn apply-btn" 
                     catchtap="showApplyConfirm" 
-                    data-prompt="{{item.prompt}}">应用</view>
+                    data-record="{{item}}">
+                <text>应用</text>
+              </view>
               <view class="action-btn delete-btn" 
                     catchtap="showDeleteConfirm" 
-                    data-id="{{item.id}}">删除</view>
+                    data-id="{{item.id}}">
+                <text>删除</text>
+              </view>
             </view>
           </view>
         </scroll-view>

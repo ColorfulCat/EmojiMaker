@@ -16,9 +16,37 @@ Page({
     historyList: [], // 历史记录列表
   },
 
-  onLoad() {
+  onLoad(options) {
     // 加载历史记录
     this.loadHistory();
+    
+    // 检查是否首次打开
+    const isFirstOpen = !wx.getStorageSync('hasOpened');
+    if (isFirstOpen) {
+      // 标记已打开过
+      wx.setStorageSync('hasOpened', true);
+      // 执行随机生成
+      this.showRandomTemplate();
+    }
+    
+    // 初始化生成次数
+    this.initGenerateCount();
+
+    // 处理分享链接打开的情况
+    if (options.imageUrl) {
+      // 将分享的图片应用到当前表情包
+      this.setData({
+        emojiUrl: decodeURIComponent(options.imageUrl),
+        mainText: options.mainText ? decodeURIComponent(options.mainText) : '',
+        captionText: options.captionText ? decodeURIComponent(options.captionText) : '',
+        isFlipping: true
+      });
+
+      // 添加翻转动画效果
+      setTimeout(() => {
+        this.setData({ isFlipping: false });
+      }, 1000);
+    }
   },
 
   // 加载历史记录
@@ -29,12 +57,11 @@ Page({
 
   // 保存历史记录
   saveHistory(prompt, imageUrl) {
-    const [mainText, captionText] = prompt.split('\n');
     const history = wx.getStorageSync('emojiHistory') || [];
     const newRecord = {
       id: Date.now(),
-      mainText,
-      captionText: captionText || '',
+      mainText: this.data.mainText,
+      captionText: this.data.captionText || '',
       imageUrl,
       createTime: new Date().toLocaleString()
     };
@@ -42,8 +69,8 @@ Page({
     // 将新记录添加到开头
     history.unshift(newRecord);
     
-    // 最多保存20条记录
-    if (history.length > 20) {
+    // 最多保存50条记录
+    if (history.length > 50) {
       history.pop();
     }
     
@@ -100,14 +127,18 @@ Page({
       return;
     }
     
-    // 合并主文本和配文
-    const combinedText = this.data.captionText.trim() 
-      ? `${this.data.mainText}\n配文“${this.data.captionText}”`
-      : this.data.mainText;
-    
-    this.setData({ isGenerating: true });
+    // 设置生成状态，禁用所有输入和按钮
+    this.setData({ 
+      isGenerating: true,
+      showHistory: false // 如果历史记录弹窗打开，则关闭
+    });
     
     try {
+      // 合并主文本和配文
+      const combinedText = this.data.captionText.trim() 
+        ? `${this.data.mainText}\n配文“${this.data.captionText}”`
+        : this.data.mainText;
+      
       // 创建请求Promise
       const requestPromise = new Promise((resolve, reject) => {
         wx.request({
@@ -161,6 +192,9 @@ Page({
           
           // 保存历史记录
           this.saveHistory(combinedText, imageUrl);
+          
+          // 更新生成次数
+          this.updateGenerateCount();
 
           setTimeout(() => {
             this.setData({ isFlipping: false });
@@ -216,24 +250,39 @@ Page({
 
   // 显示应用确认对话框
   showApplyConfirm(e) {
-    const { prompt } = e.currentTarget.dataset;
+    const record = e.currentTarget.dataset.record;  // 获取完整的记录对象
     wx.showModal({
       title: '确认应用',
-      content: '是否要将这条记录应用到当前输入框？',
+      content: '是否要将这条记录应用到当前？',
       success: (res) => {
         if (res.confirm) {
-          this.applyHistoryPrompt(prompt);
+          this.applyHistoryPrompt(record);  // 传递完整的记录对象
         }
       }
     });
   },
 
-  // 应用历史记录到输入框
+  // 应用历史记录到输入框和预览
   applyHistoryPrompt(record) {
+    if (!record) return;  // 添加空值检查
+    
     this.setData({
-      mainText: record.mainText,
+      mainText: record.mainText || '',  // 添加默认值
       captionText: record.captionText || '',
-      showHistory: false
+      emojiUrl: record.imageUrl || '',
+      showHistory: false,
+      isFlipping: true
+    });
+
+    // 添加翻转动画效果
+    setTimeout(() => {
+      this.setData({ isFlipping: false });
+    }, 1000);
+
+    wx.showToast({
+      title: '应用成功',
+      icon: 'success',
+      duration: 1500
     });
   },
 
@@ -291,5 +340,84 @@ Page({
       icon: 'success',
       duration: 1500
     });
+  },
+
+  // 显示随机模板
+  showRandomTemplate() {
+    const template = getRandomTemplate();
+    this.setData({
+      mainText: template.main,
+      captionText: template.caption
+    });
+
+    wx.showToast({
+      title: '随机生成成功',
+      icon: 'success',
+      duration: 1500
+    });
+  },
+
+  // 分享给朋友
+  onShareAppMessage(res) {
+    const params = this.data.emojiUrl ? {
+      imageUrl: encodeURIComponent(this.data.emojiUrl),
+      mainText: encodeURIComponent(this.data.mainText || ''),
+      captionText: encodeURIComponent(this.data.captionText || '')
+    } : {};
+    
+    const queryString = Object.keys(params)
+      .map(key => `${key}=${params[key]}`)
+      .join('&');
+    
+    return {
+      title: '一秒生成爆笑表情包！',
+      path: `/pages/index/index${queryString ? '?' + queryString : ''}`,
+      imageUrl: this.data.emojiUrl || '/assets/images/share-default.png'
+    }
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    const params = this.data.emojiUrl ? {
+      imageUrl: encodeURIComponent(this.data.emojiUrl),
+      mainText: encodeURIComponent(this.data.mainText || ''),
+      captionText: encodeURIComponent(this.data.captionText || '')
+    } : {};
+    
+    return {
+      title: '一键生成爆笑表情包',
+      query: Object.keys(params)
+        .map(key => `${key}=${params[key]}`)
+        .join('&'),
+      imageUrl: this.data.emojiUrl || '/assets/images/share-default.png'
+    }
+  },
+
+  // 添加分享按钮点击事件
+  handleShare() {
+    if (!this.data.emojiUrl) {
+      wx.showToast({
+        title: '请先生成表情包',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    });
+  },
+
+  // 初始化生成次数
+  initGenerateCount() {
+    const count = wx.getStorageSync('generateCount') || 0;
+    this.generateCount = count;
+  },
+
+  // 更新生成次数
+  updateGenerateCount() {
+    this.generateCount = (this.generateCount || 0) + 1;
+    wx.setStorageSync('generateCount', this.generateCount);
   }
 });

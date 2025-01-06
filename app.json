@@ -11,5 +11,13 @@
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.writePhotosAlbum": {
+      "desc": "保存表情包到相册"
+    }
+  },
+  "shareTimeline": {
+    "permission": true
+  }
 }
