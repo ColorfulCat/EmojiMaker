@@ -290,7 +290,7 @@ Page({
     } finally {
       setTimeout(() => {
         this.setData({ isGenerating: false });
-      }, 2000);
+      }, 1500);
       
     }
   }, 
