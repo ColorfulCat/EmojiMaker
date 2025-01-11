@@ -1,0 +1,71 @@
+<view class="history-page">
+  <!-- 标签页导航 -->
+  <view class="tab-container">
+    <view class="tab-item {{activeTab === 'history' ? 'active' : ''}}" 
+          bindtap="switchTab" 
+          data-tab="history">创作历史</view>
+    <view class="tab-item {{activeTab === 'favorite' ? 'active' : ''}}" 
+          bindtap="switchTab" 
+          data-tab="favorite">我的收藏</view>
+  </view>
+
+  <!-- 创作历史列表 -->
+  <view class="list-container" wx:if="{{activeTab === 'history'}}">
+    <block wx:if="{{historyList.length > 0}}">
+      <view class="list-item" wx:for="{{historyList}}" wx:key="id">
+        <view class="image-container">
+          <image class="item-image" 
+                 src="{{item.imageUrl}}" 
+                 mode="aspectFill" 
+                 bindtap="previewImage" 
+                 data-image-url="{{item.imageUrl}}" />
+        </view>
+        <view class="item-info">
+          <view class="item-text">{{item.mainText}}</view>
+          <view class="item-caption" wx:if="{{item.captionText}}">{{item.captionText}}</view>
+          <view class="item-actions">
+            <view class="action-btn favorite {{isFavorited(item.id) ? 'active' : ''}}" 
+                  catchtap="toggleFavorite" 
+                  data-record="{{item}}">
+              {{isFavorited(item.id) ? '取消收藏' : '收藏'}}
+            </view>
+            <view class="action-btn" catchtap="applyToMain" data-record="{{item}}">应用</view>
+            <view class="action-btn" catchtap="deleteHistory" data-id="{{item.id}}">删除</view>
+          </view>
+        </view>
+      </view>
+      <view class="list-tip">历史记录只保留30条，请及时收藏满意作品</view>
+    </block>
+    <view class="empty-tip" wx:else>
+      <text>暂无历史记录</text>
+    </view>
+  </view>
+
+  <!-- 收藏列表 -->
+  <view class="list-container" wx:if="{{activeTab === 'favorite'}}">
+    <block wx:if="{{favoriteList.length > 0}}">
+      <view class="list-item" wx:for="{{favoriteList}}" wx:key="id">
+        <view class="image-container">
+          <image class="item-image" 
+                 src="{{item.imageUrl}}" 
+                 mode="aspectFill" 
+                 bindtap="previewImage" 
+                 data-image-url="{{item.imageUrl}}" />
+        </view>
+        <view class="item-info">
+          <view class="item-text">{{item.mainText}}</view>
+          <view class="item-caption" wx:if="{{item.captionText}}">{{item.captionText}}</view>
+          <view class="item-actions">
+            <view class="action-btn favorite active" 
+                  catchtap="toggleFavorite" 
+                  data-record="{{item}}">取消收藏</view>
+            <view class="action-btn" catchtap="applyToMain" data-record="{{item}}">应用</view>
+          </view>
+        </view>
+      </view>
+    </block>
+    <view class="empty-tip" wx:else>
+      <text>暂无收藏内容</text>
+    </view>
+  </view>
+</view> 

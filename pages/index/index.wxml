@@ -9,7 +9,7 @@
       <view class="emoji-preview" bindtap="previewImage">
         <view class="magic-glow"></view>
         <image class="emoji-image {{isGenerating ? 'generating' : ''}}" 
-               src="{{emojiUrl || '/assets/avatar.png'}}" 
+               src="{{emojiUrl || '/assets/logo1.jpg'}}" 
                mode="aspectFit">
         </image>
         <!-- 添加生成中蒙层 -->
@@ -29,36 +29,42 @@
               hover-class="{{!isGenerating ? 'btn-hover' : ''}}">
           <text>随机生成</text>
         </view>
-        <view class="action-btn history-btn {{isGenerating ? 'disabled' : ''}}" 
-              bindtap="{{!isGenerating ? 'toggleHistory' : ''}}"
+        <view class="action-btn style-btn {{isGenerating ? 'disabled' : ''}}" 
+              bindtap="{{!isGenerating ? 'showStyleSelector' : ''}}"
               hover-class="{{!isGenerating ? 'btn-hover' : ''}}">
-          <text>历史记录</text>
+          <text>{{styleNames[selectedStyle]}}</text>
+        </view>
+        <view class="action-btn history-btn {{isGenerating ? 'disabled' : ''}}" 
+              bindtap="toggleHistory"
+              hover-class="{{!isGenerating ? 'btn-hover' : ''}}">
+          <text>我的创作</text>
         </view>
       </view>
 
-      <textarea class="text-input magic-border" 
-                placeholder="输入表情包内容..." 
-                placeholder-class="placeholder"
-                value="{{mainText}}"
-                maxlength="100"
-                disabled="{{isGenerating}}"
-                bindinput="onMainTextChange"
-                cursor-spacing="20"
-                auto-focus="{{false}}"
-                show-confirm-bar="{{false}}"
-                selection-start="-1"
-                selection-end="-1"
-                hold-keyboard="{{false}}"
-                adjust-position="{{true}}" />
       
-      <input class="caption-input magic-border" 
-             placeholder="输入配文（选填）..." 
-             placeholder-class="placeholder"
-             value="{{captionText}}"
-             maxlength="50"
-             disabled="{{isGenerating}}"
-             bindinput="onCaptionTextChange"
-             cursor-spacing="20" />
+
+      <!-- 主内容展示区域 -->
+      <view class="input-group">
+        <view class="input-label-row">
+          <text class="input-label">表情包内容</text>
+          <text class="count-label">剩余次数：{{remainingCount}}</text>
+        </view>
+        <view class="text-display {{isGenerating ? 'disabled' : ''}}" 
+              bindtap="{{!isGenerating ? 'showEditModal' : ''}}"
+              hover-class="{{!isGenerating ? 'text-hover' : ''}}">
+          <text class="display-text {{!mainText ? 'placeholder' : ''}}">{{mainText || '点击输入想要生成的表情包内容...'}}</text>
+        </view>
+      </view>
+      
+      <!-- 配文展示区域 -->
+      <view class="input-group">
+        <text class="input-label">表情包配文（可选）</text>
+        <view class="text-display caption {{isGenerating ? 'disabled' : ''}}" 
+              bindtap="{{!isGenerating ? 'showEditModal' : ''}}"
+              hover-class="{{!isGenerating ? 'text-hover' : ''}}">
+          <text class="display-text {{!captionText ? 'placeholder' : ''}}">{{captionText || '点击输入表情包配文...'}}</text>
+        </view>
+      </view>
       
       <view class="btn-container">
         <button class="generate-btn magic-btn {{isGenerating ? 'disabled' : ''}}" 
@@ -70,41 +76,101 @@
         </button>
       </view>
     </view>
-    
-    <!-- 历史记录弹窗 -->
-    <view class="history-modal {{showHistory ? 'show' : ''}}" catchtap="toggleHistory">
-      <view class="history-content" catchtap="return">
-        <view class="history-header">
-          <text>历史记录</text>
-          <view class="close-btn" catchtap="toggleHistory">×</view>
-        </view>
-        <scroll-view scroll-y class="history-list">
-          <view class="history-item" wx:for="{{historyList}}" wx:key="id">
-            <image class="history-image" 
-                   src="{{item.imageUrl}}" 
-                   mode="aspectFill" 
-                   catchtap="previewHistoryImage" 
-                   data-image-url="{{item.imageUrl}}" />
-            <view class="history-info">
-              <text class="history-prompt">{{item.mainText}}</text>
-              <text class="history-caption" wx:if="{{item.captionText}}">{{item.captionText}}</text>
-              <text class="history-time">{{item.createTime}}</text>
-            </view>
-            <view class="history-actions">
-              <view class="action-btn apply-btn" 
-                    catchtap="showApplyConfirm" 
-                    data-record="{{item}}">
-                <text>应用</text>
-              </view>
-              <view class="action-btn delete-btn" 
-                    catchtap="showDeleteConfirm" 
-                    data-id="{{item.id}}">
-                <text>删除</text>
-              </view>
-            </view>
-          </view>
-        </scroll-view>
+  </view>
+</scroll-view>
+
+<!-- 风格选择弹窗 -->
+<view class="style-modal" wx:if="{{showStyleSelector}}" catchtap="hideStyleSelector">
+  <view class="style-content" catchtap="return">
+    <view class="style-header">
+      <text>选择风格</text>
+      <view class="close-btn" catchtap="hideStyleSelector">×</view>
+    </view>
+    <view class="style-list">
+      <view class="style-item {{selectedStyle === 'cartoon' ? 'active' : ''}}"
+            catchtap="selectStyle" 
+            data-style="cartoon">
+        <image class="style-image" src="/assets/cartoon.jpg" mode="aspectFill" />
+        <text>可爱卡通</text>
+      </view>
+      <view class="style-item {{selectedStyle === 'realistic' ? 'active' : ''}}"
+            catchtap="selectStyle" 
+            data-style="realistic">
+        <image class="style-image" src="/assets/realistic.jpg" mode="aspectFill" />
+        <text>写实风格</text>
+      </view>
+      <view class="style-item {{selectedStyle === 'sketch' ? 'active' : ''}}"
+            catchtap="selectStyle" 
+            data-style="sketch">
+        <image class="style-image" src="/assets/sketch.jpg" mode="aspectFill" />
+        <text>线条简笔</text>
+      </view>
+      <view class="style-item {{selectedStyle === 'ink' ? 'active' : ''}}"
+            catchtap="selectStyle" 
+            data-style="ink">
+        <image class="style-image" src="/assets/ink.jpg" mode="aspectFill" />
+        <text>水墨江南</text>
+      </view>
+      <view class="style-item {{selectedStyle === 'toy' ? 'active' : ''}}"
+            catchtap="selectStyle" 
+            data-style="toy">
+        <image class="style-image" src="/assets/toy.jpg" mode="aspectFill" />
+        <text>毛绒玩具</text>
       </view>
     </view>
   </view>
-</scroll-view>
+</view>
+
+
+<!-- 编辑弹窗 -->
+<view class="edit-modal" wx:if="{{showEditModal}}" bindtap="hideEditModal">
+  <view class="edit-content" catchtap="return">
+    <view class="edit-header">
+      <text class="edit-title">请编辑您想要的图片内容和配文</text>
+    </view>
+    
+    <view class="edit-body">
+      <!-- 主要文本输入 -->
+      <view class="edit-field">
+        <view class="edit-label-row">
+          <text class="edit-label">表情包内容</text>
+          <view class="clear-text-btn" catchtap="clearEditText" wx:if="{{mainText}}">
+            <text>清空内容</text>
+          </view>
+        </view>
+        <textarea class="edit-textarea"
+                  value="{{mainText}}"
+                  maxlength="120"
+                  bindinput="onMainTextChange"
+                  placeholder="请输入想要生成的表情包内容..."
+                  placeholder-style="color: rgba(255, 255, 255, 0.3);"
+                  auto-height="{{true}}"
+                  show-confirm-bar="{{false}}"
+                  cursor-spacing="20" />
+      </view>
+      
+      <!-- 配文输入 -->
+      <view class="edit-field">
+        <view class="edit-label-row">
+          <text class="edit-label">配文（可选）</text>
+          <view class="clear-text-btn" catchtap="clearCaptionText" wx:if="{{captionText}}">
+            <text>清空配文</text>
+          </view>
+        </view>
+        <input class="edit-input"
+               value="{{captionText}}"
+               maxlength="50"
+               bindinput="onCaptionTextChange"
+               placeholder="添加表情包配文..."
+               placeholder-style="color: rgba(255, 255, 255, 0.3);" />
+      </view>
+    </view>
+    
+    <view class="edit-footer">
+      <view class="edit-btn cancel" 
+            catchtap="hideEditModal">取消</view>
+      <view class="edit-btn confirm" 
+            catchtap="confirmEdit">确定</view>
+    </view>
+  </view>
+</view>

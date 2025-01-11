@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+  },
+  "navigationBarBackgroundColor": "#1a1a2e",
+  "navigationBarTitleText": "我的创作",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#1a1a2e",
+  "backgroundTextStyle": "light"
+}

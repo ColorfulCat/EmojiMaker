@@ -13,8 +13,9 @@ page {
   flex-direction: column;
   align-items: center;
   position: relative;
-  padding: 20px;
+  padding: 0 20px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* 魔法星星背景 */
@@ -40,8 +41,7 @@ page {
 /* 卡片翻转动画 */
 .card-wrapper {
   perspective: 1000px;
-  margin: 40rpx 0;
-  margin-top: 188rpx;
+  margin: 188rpx 0 40rpx;
   animation: float 2s ease-in-out infinite;
 }
 
@@ -82,8 +82,8 @@ page {
 }
 
 .emoji-image {
-  width: 90%;
-  height: 90%;
+  width: 92%;
+  height: 92%;
   border-radius: 16rpx;
   transition: transform 0.3s ease;
 }
@@ -116,45 +116,52 @@ page {
 
 .input-section {
   width: 100%;
-  padding: 32rpx;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: auto;
+  gap: 16rpx;
+  padding: 32rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24rpx;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .text-input, .caption-input {
   width: 100%;
-  padding: 24rpx;
-  box-sizing: border-box;
-  border-radius: 16rpx;
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16rpx;
+  color: #ffffff;
+  font-size: 28rpx;
   transition: all 0.3s ease;
-  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+  padding: 20rpx 70rpx 20rpx 20rpx !important;
 }
 
 /* 主输入框样式 */
 .text-input {
-  height: 200rpx;
+  height: 160rpx;
   font-size: 30rpx;
-  margin-bottom: 24rpx;
+  margin-top: 0;
+  margin-bottom: 16rpx;
   line-height: 1.6;
+  padding: 16rpx 20rpx;
 }
 
 /* 配文输入框样式 */
 .caption-input {
-  height: 100rpx;
+  height: 78rpx;
   font-size: 28rpx;
-  margin-bottom: 32rpx;
+  margin-bottom: 16rpx;
   line-height: 1.5;
+  padding: 0 20rpx;
 }
 
 /* 输入框焦点状态 */
 .text-input:focus, .caption-input:focus {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 20rpx rgba(255, 255, 255, 0.1);
 }
 
@@ -184,6 +191,8 @@ page {
 .btn-container {
   width: 100%;
   padding: 0 20rpx;
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 .generate-btn {
@@ -273,14 +282,8 @@ page {
 
 /* 历史记录按钮 */
 .history-btn {
-  width: 100%;
-  padding: 16rpx 0;
-  margin-bottom: 20rpx;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 16rpx;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  background: rgba(64, 158, 255, 0.15);
+  border: 1px solid rgba(64, 158, 255, 0.3);
 }
 
 .history-btn text {
@@ -294,132 +297,13 @@ page {
   transform: scale(0.98);
 }
 
-/* 历史记录弹窗 */
-.history-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s;
-}
 
-.history-modal.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-.history-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 80%;
-  background: #1a1a2e;
-  border-radius: 32rpx 32rpx 0 0;
-  padding: 32rpx;
-  box-sizing: border-box;
-  transform: translateY(100%);
-  transition: transform 0.3s;
-}
-
-.history-modal.show .history-content {
-  transform: translateY(0);
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32rpx;
-  color: #fff;
-  font-size: 32rpx;
-}
-
-.close-btn {
-  font-size: 48rpx;
-  color: #fff;
-  padding: 0 20rpx;
-}
-
-.history-list {
-  height: calc(100% - 80rpx);
-}
-
-.history-item {
-  padding: 24rpx;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16rpx;
-  margin-bottom: 16rpx;
-  display: flex;
-  align-items: center;
-}
-
-.history-image {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 12rpx;
-  margin-right: 20rpx;
-}
-
-.history-info {
-  flex: 1;
-  min-width: 0;
-  margin-right: 20rpx;
-}
-
-.history-actions {
-  width: 120rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
-
-.action-btn {
-  font-size: 24rpx;
-  min-height: 42rpx;
-  padding: 8rpx 16rpx;
-  border-radius: 32rpx;
+/* 空状态提示 */
+.empty-tip {
+  padding: 48rpx 0;
   text-align: center;
-}
-
-.apply-btn {
-  color: #4CAF50;
-  border: 1px solid #4CAF50;
-}
-
-.delete-btn {
-  color: #ff4d4f;
-  border: 1px solid #ff4d4f;
-}
-
-.history-prompt {
+  color: rgba(255, 255, 255, 0.4);
   font-size: 28rpx;
-  color: #fff;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.4;
-  max-width: 100%;
-}
-
-.history-caption {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-top: 4rpx;
-}
-
-.history-time {
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 8rpx;
 }
 
 /* 顶部按钮区域 */
@@ -428,7 +312,7 @@ page {
   justify-content: center;
   gap: 24rpx;
   width: 100%;
-  margin-bottom: 20rpx;
+  margin-bottom: 16rpx;
 }
 
 .action-btn {
@@ -438,34 +322,26 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(64, 158, 255, 0.15);
+  border: 1px solid rgba(64, 158, 255, 0.3);
   border-radius: 36rpx;
-  backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
 .action-btn text {
-  color: #fff;
+  color: #409eff;
   font-size: 28rpx;
   font-weight: 500;
 }
 
-.random-btn {
-  background: rgba(64, 158, 255, 0.15);
-  border: 1px solid rgba(64, 158, 255, 0.3);
+/* 修改风格选择弹窗中的激活状态颜色 */
+.style-item.active {
+  background: rgba(64, 158, 255, 0.2);
+  border-color: rgba(64, 158, 255, 0.4);
 }
 
-.random-btn text {
+.style-item.active text {
   color: #409eff;
-}
-
-.history-btn {
-  background: rgba(103, 194, 58, 0.15);
-  border: 1px solid rgba(103, 194, 58, 0.3);
-}
-
-.history-btn text {
-  color: #67c23a;
 }
 
 /* 按钮悬停效果 */
@@ -533,7 +409,7 @@ page {
 /* 历史记录操作按钮 */
 .history-actions .action-btn {
   width: 100%;
-  height: 68rpx;
+  height: 56rpx;
   border-radius: 34rpx;
   display: flex;
   justify-content: center;
@@ -571,15 +447,763 @@ page {
   transform: scale(0.95);
 }
 
-/* 禁用状态 */
-.icon-btn.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-  background: rgba(255, 255, 255, 0.05);
-}
-
 /* 输入框聚焦状态样式 */
 .text-input:focus, .caption-input:focus {
   border-color: rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.12);
+}
+
+/* 风格选择器样式 */
+.style-selector {
+  width: 100vw;
+  padding-left: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.style-title {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 12rpx;
+  padding-left: 8rpx;
+}
+
+.style-list {
+  width: 100%;
+  white-space: nowrap;
+  padding: 4rpx 0;
+}
+
+.style-item {
+  display: inline-block;
+  padding: 8rpx 24rpx;
+  margin-right: 12rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 32rpx;
+  transition: all 0.3s ease;
+}
+
+.style-item text {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.style-item.active {
+  background: rgba(64, 158, 255, 0.2);
+  border-color: rgba(64, 158, 255, 0.4);
+}
+
+.style-item.active text {
+  color: #409eff;
+}
+
+.style-item.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 调整输入框上边距 */
+.text-input {
+  margin-top: 0;
+}
+
+/* 风格按钮样式 */
+.style-btn {
+  background: rgba(64, 158, 255, 0.15);
+  border: 1px solid rgba(64, 158, 255, 0.3);
+}
+
+.style-btn text {
+  color: #409eff;
+}
+
+/* 风格选择弹窗 */
+.style-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.style-content {
+  width: 90%;
+  max-height: 80vh;
+  background: #1a1a2e;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  position: relative;
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.style-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.style-header text {
+  font-size: 32rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+.close-btn {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 24rpx;
+  transition: all 0.3s ease;
+}
+
+.close-btn:active {
+  opacity: 0.8;
+  transform: scale(0.95);
+}
+
+.style-list {
+  max-height: calc(80vh - 180rpx);
+  overflow-y: auto;
+  padding: 0 4rpx;
+}
+
+.style-list::-webkit-scrollbar {
+  width: 4rpx;
+  background: transparent;
+}
+
+.style-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2rpx;
+}
+
+.style-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+}
+
+.style-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.style-item text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+  flex: 1;
+}
+
+.style-item.active {
+  background: rgba(64, 158, 255, 0.2);
+  border-color: rgba(64, 158, 255, 0.4);
+}
+
+.style-item.active text {
+  color: #409eff;
+}
+
+.style-item:active {
+  background: rgba(64, 158, 255, 0.1);
+  border-color: rgba(64, 158, 255, 0.2);
+}
+
+/* 输入框组样式 */
+.input-group {
+  width: 100%;
+  margin-bottom: 0rpx;
+}
+
+/* 输入框标签样式 */
+.input-label {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 8rpx;
+  padding-left: 4rpx;
+}
+
+/* 调整输入框上边距 */
+.text-input, .caption-input {
+  margin-top: 0;
+}
+
+/* 输入框包装器 */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  transition: transform 0.2s ease;
+}
+
+.input-wrapper:active {
+  transform: scale(0.995);
+}
+
+/* 清空按钮样式优化 */
+.clear-btn {
+  position: absolute;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.clear-btn.show {
+  opacity: 1;
+}
+
+.clear-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-50%) scale(0.9);
+}
+
+.clear-icon {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 32rpx;
+  line-height: 1;
+  display: block;
+  height: 32rpx;
+  margin-top: -2rpx;
+  pointer-events: none;
+}
+
+/* 输入标签动画效果 */
+.input-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.input-wrapper:focus-within + .input-label-row {
+  opacity: 1;
+}
+
+/* 输入组间距优化 */
+.input-group {
+  margin-bottom: 24rpx;
+}
+
+.input-group:last-child {
+  margin-bottom: 32rpx;
+}
+
+/* 输入标签行样式 */
+.input-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+/* 计数标签样式 */
+.count-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 移除之前的使用次数提示 */
+.use-count-tip {
+  display: none;
+}
+
+/* 标签页样式 */
+.tab-container {
+  align-items: center;
+  display: flex;
+  padding: 24rpx 32rpx;
+  gap: 32rpx;
+  background: linear-gradient(180deg, #1a1a2e 0%, rgba(26, 26, 46, 0.9) 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.tab-item {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 28rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 32rpx;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 收藏按钮样式 */
+.favorite {
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+.favorite.active {
+  color: #ff4d4f;
+}
+
+.favorite-icon {
+  font-size: 36rpx;
+}
+
+/* 列表切换动画 */
+.history-list {
+  display: none;
+  opacity: 0;
+  transform: translateY(20rpx);
+  transition: all 0.3s ease;
+}
+
+.history-list.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 空状态提示 */
+.empty-tip {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 40rpx 0;
+}
+
+/* 底部提示信息 */
+.history-tip {
+  padding: 24rpx;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 24rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12rpx;
+  margin: 24rpx 0;
+}
+
+/* 标签页内容区域 */
+.tab-content {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 列表切换动画优化 */
+.history-list {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.history-list.show {
+  visibility: visible;
+}
+
+/* 滚动条样式优化 */
+::-webkit-scrollbar {
+  width: 8rpx;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4rpx;
+}
+
+/* 输入框右侧按钮组 */
+.input-buttons {
+  position: absolute;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.input-btn {
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 22rpx;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
+}
+
+.input-btn.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.input-btn:active {
+  transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.input-btn-icon {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 大输入框弹窗 */
+.expand-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.expand-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.expand-content {
+  width: 90%;
+  background: #1a1a2e;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
+}
+
+.expand-modal.show .expand-content {
+  transform: scale(1);
+}
+
+.expand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.expand-title {
+  font-size: 32rpx;
+  color: #fff;
+}
+
+.expand-textarea {
+  width: 100%;
+  height: 360rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  font-size: 30rpx;
+  color: #fff;
+  line-height: 1.6;
+  margin-bottom: 24rpx;
+}
+
+.expand-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+}
+
+.expand-btn {
+  padding: 16rpx 32rpx;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  transition: all 0.3s ease;
+}
+
+.expand-btn.cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.expand-btn.confirm {
+  background: rgba(64, 158, 255, 0.2);
+  color: #409eff;
+}
+
+.expand-btn:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+/* 文本展示区域 */
+.text-display {
+  width: 100%;
+  min-height: 88rpx;
+  max-height: 132rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  position: relative;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+}
+
+.text-display.caption {
+  min-height: 72rpx;
+  max-height: 72rpx;
+}
+
+.text-display::-webkit-scrollbar {
+  width: 4rpx;
+  background: transparent;
+}
+
+.text-display::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2rpx;
+}
+
+.text-display:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.display-text {
+  font-size: 28rpx;
+  color: #fff;
+  line-height: 40rpx;
+  word-break: break-all;
+  display: block;
+  white-space: pre-wrap;
+}
+
+.display-text.placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* 编辑弹窗 */
+.edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.edit-content {
+  width: 90%;
+  max-height: 80vh;
+  background: #1a1a2e;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-header {
+  margin-bottom: 24rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.edit-title {
+  font-size: 32rpx;
+  color: #fff;
+  font-weight: 500;
+  text-align: center;
+}
+
+.edit-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 4rpx;
+  margin-bottom: 32rpx;
+}
+
+.edit-field {
+  margin-bottom: 32rpx;
+}
+
+.edit-label {
+  display: block;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 16rpx;
+}
+
+.edit-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  max-height: 400rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  font-size: 30rpx;
+  color: #fff;
+  line-height: 1.6;
+}
+
+.edit-input {
+  width: 100%;
+  height: 88rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  font-size: 30rpx;
+  color: #fff;
+}
+
+.edit-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+  margin-top: 32rpx;
+  padding-top: 24rpx;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.edit-btn {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  transition: all 0.3s ease;
+}
+
+.edit-btn.cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.edit-btn.confirm {
+  background: linear-gradient(135deg, #409eff 0%, #3482d1 100%);
+  color: #ffffff;
+  font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(64, 158, 255, 0.3);
+}
+
+.edit-btn:active {
+  transform: scale(0.96);
+  opacity: 0.8;
+}
+
+/* 优化滚动条样式 */
+.edit-body::-webkit-scrollbar {
+  width: 4rpx;
+  background: transparent;
+}
+
+.edit-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2rpx;
+}
+
+/* 编辑标签行样式 */
+.edit-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+/* 清空文本按钮样式 */
+.clear-text-btn {
+  padding: 8rpx 20rpx;
+  transition: all 0.3s ease;
+}
+
+.clear-text-btn text {
+  font-size: 24rpx;
+  color: #f56c6c;
+}
+
+.clear-text-btn:active {
+  opacity: 0.8;
+}
+
+/* 禁用状态样式 */
+.text-display.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* 点击反馈效果 */
+.text-hover {
+  transform: scale(0.99);
+  background: rgba(0, 0, 0, 0.25);
 }

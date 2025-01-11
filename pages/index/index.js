@@ -14,11 +14,26 @@ Page({
     shake: false, // 是否抖动
     showHistory: false, // 控制历史记录弹窗
     historyList: [], // 历史记录列表
+    favoriteList: [], // 收藏列表
+    activeTab: 'history', // 当前激活的标签页：history/favorite
+    selectedStyle: 'cartoon', // 默认选中Q版卡通风格
+    showStyleSelector: false,
+    styleNames: {
+      cartoon: '可爱卡通',
+      realistic: '写实风格',
+      sketch: '素描简笔',
+      ink: '水墨江南',
+      toy: '毛绒玩具'
+    },
+    useCount: 0,  // 累计使用次数
+    remainingCount: 20,  // 剩余可用次数，默认20次
+    rewardedVideoAd: null, // 激励广告实例
+    tempMainText: '', // 临时保存文本
+    showEditModal: false, // 控制编辑弹窗显示
   },
 
-  onLoad(options) {
-    // 加载历史记录
-    this.loadHistory();
+  onLoad() {
+  
     
     // 检查是否首次打开
     const isFirstOpen = !wx.getStorageSync('hasOpened');
@@ -32,75 +47,107 @@ Page({
     // 初始化生成次数
     this.initGenerateCount();
 
-    // 处理分享链接打开的情况
-    if (options.imageUrl) {
-      // 将分享的图片应用到当前表情包
-      this.setData({
-        emojiUrl: decodeURIComponent(options.imageUrl),
-        mainText: options.mainText ? decodeURIComponent(options.mainText) : '',
-        captionText: options.captionText ? decodeURIComponent(options.captionText) : '',
-        isFlipping: true
+    // 初始化剩余次数
+    const remainingCount = wx.getStorageSync('remainingCount');
+    if (remainingCount === '') {
+      // 首次打开，设置默认20次
+      wx.setStorageSync('remainingCount', 20);
+      this.setData({ remainingCount: 20 });
+    } else {
+      this.setData({ remainingCount: remainingCount });
+    }
+
+    // 获取累计使用次数（保持原有逻辑）
+    const useCount = wx.getStorageSync('emojiUseCount') || 0;
+    this.setData({ useCount });
+
+    // 初始化激励广告
+    if(wx.createRewardedVideoAd) {
+      this.data.rewardedVideoAd = wx.createRewardedVideoAd({
+        adUnitId: 'adunit-0f009e28232b1369'
       });
 
-      // 添加翻转动画效果
-      setTimeout(() => {
-        this.setData({ isFlipping: false });
-      }, 1000);
+      // 监听广告加载事件
+      this.data.rewardedVideoAd.onLoad(() => {
+        console.log('激励广告加载成功');
+      });
+
+      // 监听广告错误事件
+      this.data.rewardedVideoAd.onError((err) => {
+        console.error('激励广告加载失败', err);
+        // 广告加载失败时，给予用户5次免费机会
+        this.setData({ remainingCount: 5 });
+        wx.setStorageSync('remainingCount', 5);
+        wx.showToast({
+          title: '广告加载失败，已获得5次免费机会',
+          icon: 'none',
+          duration: 2000
+        });
+      });
+
+      // 监听广告关闭事件
+      this.data.rewardedVideoAd.onClose((res) => {
+        if(res && res.isEnded) {
+          // 正常播放结束，重置剩余次数为20
+          this.setData({ remainingCount: 20 });
+          wx.setStorageSync('remainingCount', 20);
+          wx.showToast({
+            title: '恭喜获得20次创作机会',
+            icon: 'success'
+          });
+        } else {
+          // 播放中途退出
+          wx.showToast({
+            title: '需要完整观看广告才能获得创作机会哦~',
+            icon: 'none'
+          });
+        }
+      });
     }
   },
 
-  // 加载历史记录
-  loadHistory() {
-    const history = wx.getStorageSync('emojiHistory') || [];
-    this.setData({ historyList: history });
-  },
 
   // 保存历史记录
   saveHistory(prompt, imageUrl) {
-    const history = wx.getStorageSync('emojiHistory') || [];
-    const newRecord = {
-      id: Date.now(),
-      mainText: this.data.mainText,
-      captionText: this.data.captionText || '',
-      imageUrl,
-      createTime: new Date().toLocaleString()
-    };
-    
-    // 将新记录添加到开头
-    history.unshift(newRecord);
-    
-    // 最多保存50条记录
-    if (history.length > 50) {
-      history.pop();
+    try {
+      const history = wx.getStorageSync('emojiHistory') || [];
+      const newRecord = {
+        id: new Date().getTime(), // 使用当前时间戳（毫秒）作为id
+        mainText: this.data.mainText,
+        captionText: this.data.captionText || '',
+        imageUrl,
+        style: this.data.selectedStyle,
+        styleText: this.data.styleNames[this.data.selectedStyle],
+        createTime: new Date().toLocaleString()
+      };
+      
+      // 将新记录添加到开头
+      history.unshift(newRecord);
+      
+      // 最多保存30条记录
+      if (history.length > 30) {
+        history.length = 30;
+      }
+      
+      // 保存到本地存储
+      wx.setStorageSync('emojiHistory', history);
+      
+      // 更新页面数据
+      this.setData({ 
+        historyList: history 
+      }, () => {
+        console.log('历史记录已更新:', history);
+      });
+    } catch (error) {
+      console.error('保存历史记录失败:', error);
     }
-    
-    wx.setStorageSync('emojiHistory', history);
-    this.setData({ historyList: history });
   },
 
-  // 切换历史记录弹窗
+  // 切换到我的创作页面
   toggleHistory() {
-    this.setData({
-      showHistory: !this.data.showHistory
+    wx.navigateTo({
+      url: '/pages/history/history'
     });
-  },
-
-  // 预览历史记录图片
-  previewHistoryImage(e) {
-    const { imageUrl } = e.currentTarget.dataset;
-    wx.previewImage({
-      urls: [imageUrl],
-      current: imageUrl,
-      showmenu: true
-    });
-  },
-
-  // 删除历史记录
-  deleteHistory(e) {
-    const { id } = e.currentTarget.dataset;
-    const history = this.data.historyList.filter(item => item.id !== id);
-    wx.setStorageSync('emojiHistory', history);
-    this.setData({ historyList: history });
   },
 
   // 主文本输入变化
@@ -117,30 +164,16 @@ Page({
     });
   },
 
-  // 生成表情包
-  async generateEmoji() {
-    if (!this.data.mainText.trim()) {
-      wx.showToast({
-        title: '请输入表情包内容',
-        icon: 'none'
-      });
-      return;
-    }
+  // 调用 Coze API 生成表情包
+  async callCozeAPI() {
+    // 合并主文本和配文
+    const combinedText = this.data.captionText.trim() 
+      ? `${this.data.mainText}。\n配文"${this.data.captionText}"`
+      : this.data.mainText;
     
-    // 设置生成状态，禁用所有输入和按钮
-    this.setData({ 
-      isGenerating: true,
-      showHistory: false // 如果历史记录弹窗打开，则关闭
-    });
-    
-    try {
-      // 合并主文本和配文
-      const combinedText = this.data.captionText.trim() 
-        ? `${this.data.mainText}\n配文“${this.data.captionText}”`
-        : this.data.mainText;
-      
+    return new Promise((resolve, reject) => {
       // 创建请求Promise
-      const requestPromise = new Promise((resolve, reject) => {
+      const requestPromise = new Promise((innerResolve, innerReject) => {
         wx.request({
           url: 'https://api.coze.cn/v1/workflow/run',
           method: 'POST',
@@ -151,78 +184,116 @@ Page({
           data: {
             workflow_id: app.globalData.COZE_WORKFLOW_ID,
             parameters: {
-              prompt: combinedText
+              prompt: combinedText,
+              type: this.data.selectedStyle // 添加风格参数
             }
           },
           success: (res) => {
-            resolve(res);
+            if (res.statusCode === 200 && res.data?.code === 0) {
+              try {
+                const outputData = JSON.parse(res.data.data);
+                const imageUrl = outputData.output;
+                
+                if (!imageUrl) {
+                  innerReject(new Error('未获取到图片地址'));
+                  return;
+                }
+                
+                innerResolve({ data: imageUrl });
+              } catch (parseError) {
+                innerReject(new Error('解析返回数据失败'));
+              }
+            } else {
+              innerReject(new Error(res.data?.msg || '生成失败'));
+            }
           },
           fail: (error) => {
-            reject(error);
+            innerReject(error);
           }
         });
       });
 
       // 创建超时Promise
-      const timeoutPromise = new Promise((_, reject) => {
+      const timeoutPromise = new Promise((_, innerReject) => {
         setTimeout(() => {
-          reject(new Error('请求超时'));
+          innerReject(new Error('请求超时'));
         }, 15000);
       });
 
       // 使用 Promise.race 竞争超时和请求
-      const response = await Promise.race([requestPromise, timeoutPromise]);
-      console.log('API Response:', response);
+      Promise.race([requestPromise, timeoutPromise])
+        .then(resolve)
+        .catch(reject);
+    });
+  },
 
-      if (response.statusCode === 200 && response.data?.code === 0) {
-        // 解析返回的 data 字符串获取图片 URL
-        try {
-          const outputData = JSON.parse(response.data.data);
-          const imageUrl = outputData.output;
-          
-          if (!imageUrl) {
-            throw new Error('未获取到图片地址');
-          }
-
-          this.setData({
-            emojiUrl: imageUrl,
-            isGenerating: false,
-            isFlipping: true
-          });
-          
-          // 保存历史记录
-          this.saveHistory(combinedText, imageUrl);
-          
-          // 更新生成次数
-          this.updateGenerateCount();
-
-          setTimeout(() => {
-            this.setData({ isFlipping: false });
-          }, 1000);
-        } catch (parseError) {
-          console.error('解析返回数据失败:', parseError);
-          throw new Error('解析返回数据失败');
-        }
-      } else {
-        throw new Error(response.data?.msg || '生成失败');
-      }
-    } catch (error) {
-      console.error('生成表情包失败:', error);
-      this.setData({ 
-        isGenerating: false,
-        shake: true 
+  // 生成表情包
+  async generateEmoji() {
+    // 检查主文本是否为空
+    if (!this.data.mainText || !this.data.mainText.trim()) {
+      wx.showToast({
+        title: '请输入表情包内容',
+        icon: 'none',
+        duration: 2000
       });
+      return;
+    }
+
+    // 检查是否需要观看广告
+    if (this.checkNeedAd()) {
+      return;
+    }
+
+    try {
+      this.setData({ isGenerating: true });
+      
+      const response = await this.callCozeAPI();
+      if (response && response.data) {
+        const imageUrl = response.data;
+        this.setData({ 
+          emojiUrl: imageUrl,
+          isFlipping: true
+        });
+
+        // 生成成功后，更新计数
+        const newRemainingCount = this.data.remainingCount - 1;
+        const newUseCount = this.data.useCount + 1;
+        
+        this.setData({
+          remainingCount: newRemainingCount,
+          useCount: newUseCount
+        });
+        
+        // 保存到本地存储
+        wx.setStorageSync('remainingCount', newRemainingCount);
+        wx.setStorageSync('emojiUseCount', newUseCount);
+
+        // 保存到历史记录
+        this.saveHistory(this.data.mainText, imageUrl);
+
+        setTimeout(() => {
+          this.setData({ isFlipping: false });
+        }, 1000);
+      }
+    } catch(err) {
+      console.error('生成失败:', err);
+      this.setData({ shake: true });
       
       wx.showToast({
-        title: error.message === '请求超时' ? '生成超时，请重试' : '生成失败，请重试',
+        title: err.message === '请求超时' ? '生成超时，请重试' : '生成失败，请重试',
         icon: 'none'
       });
-      
+
       setTimeout(() => {
         this.setData({ shake: false });
       }, 500);
+    } finally {
+      setTimeout(() => {
+        this.setData({ isGenerating: false });
+      }, 2000);
+      
     }
-  },
+  }, 
 
   // 预览和保存图片
   previewImage() {
@@ -259,57 +330,6 @@ Page({
           this.applyHistoryPrompt(record);  // 传递完整的记录对象
         }
       }
-    });
-  },
-
-  // 应用历史记录到输入框和预览
-  applyHistoryPrompt(record) {
-    if (!record) return;  // 添加空值检查
-    
-    this.setData({
-      mainText: record.mainText || '',  // 添加默认值
-      captionText: record.captionText || '',
-      emojiUrl: record.imageUrl || '',
-      showHistory: false,
-      isFlipping: true
-    });
-
-    // 添加翻转动画效果
-    setTimeout(() => {
-      this.setData({ isFlipping: false });
-    }, 1000);
-
-    wx.showToast({
-      title: '应用成功',
-      icon: 'success',
-      duration: 1500
-    });
-  },
-
-  // 显示删除确认对话框
-  showDeleteConfirm(e) {
-    const { id } = e.currentTarget.dataset;
-    wx.showModal({
-      title: '确认删除',
-      content: '确定要删除这条记录吗？',
-      success: (res) => {
-        if (res.confirm) {
-          this.deleteHistory(id);
-        }
-      }
-    });
-  },
-
-  // 删除历史记录
-  deleteHistory(id) {
-    const history = this.data.historyList.filter(item => item.id !== id);
-    wx.setStorageSync('emojiHistory', history);
-    this.setData({ historyList: history });
-    
-    wx.showToast({
-      title: '删除成功',
-      icon: 'success',
-      duration: 1500
     });
   },
 
@@ -358,38 +378,19 @@ Page({
   },
 
   // 分享给朋友
-  onShareAppMessage(res) {
-    const params = this.data.emojiUrl ? {
-      imageUrl: encodeURIComponent(this.data.emojiUrl),
-      mainText: encodeURIComponent(this.data.mainText || ''),
-      captionText: encodeURIComponent(this.data.captionText || '')
-    } : {};
-    
-    const queryString = Object.keys(params)
-      .map(key => `${key}=${params[key]}`)
-      .join('&');
-    
+  onShareAppMessage() {
     return {
       title: '一秒生成爆笑表情包！',
-      path: `/pages/index/index${queryString ? '?' + queryString : ''}`,
-      imageUrl: this.data.emojiUrl || '/assets/images/share-default.png'
+      path: '/pages/index/index',
+      imageUrl: '/assets/logo.jpg'
     }
   },
 
   // 分享到朋友圈
   onShareTimeline() {
-    const params = this.data.emojiUrl ? {
-      imageUrl: encodeURIComponent(this.data.emojiUrl),
-      mainText: encodeURIComponent(this.data.mainText || ''),
-      captionText: encodeURIComponent(this.data.captionText || '')
-    } : {};
-    
     return {
       title: '一键生成爆笑表情包',
-      query: Object.keys(params)
-        .map(key => `${key}=${params[key]}`)
-        .join('&'),
-      imageUrl: this.data.emojiUrl || '/assets/images/share-default.png'
+      imageUrl: '/assets/logo.jpg'
     }
   },
 
@@ -419,5 +420,170 @@ Page({
   updateGenerateCount() {
     this.generateCount = (this.generateCount || 0) + 1;
     wx.setStorageSync('generateCount', this.generateCount);
+  },
+
+  // 显示风格选择器
+  showStyleSelector() {
+    this.setData({ showStyleSelector: true });
+  },
+
+  // 隐藏风格选择器
+  hideStyleSelector() {
+    this.setData({ showStyleSelector: false });
+  },
+
+  // 选择风格
+  selectStyle(e) {
+    const style = e.currentTarget.dataset.style;
+    this.setData({ 
+      selectedStyle: style,
+      showStyleSelector: false
+    });
+  },
+
+  // 清空主文本
+  clearMainText() {
+    if (!this.data.mainText.trim()) return;
+    
+    wx.showModal({
+      title: '提示',
+      content: '确定要清空当前输入的内容吗？',
+      confirmText: '清空',
+      confirmColor: '#ff4d4f',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            mainText: ''
+          });
+        }
+      }
+    });
+  },
+
+  // 清空配文
+  clearCaptionText() {
+    if (!this.data.captionText.trim()) return;
+    
+    wx.showModal({
+      title: '提示',
+      content: '确定要清空当前输入的配文吗？',
+      confirmText: '清空',
+      confirmColor: '#ff4d4f',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            captionText: ''
+          });
+        }
+      }
+    });
+  },
+
+  // 检查是否需要观看广告
+  checkNeedAd() {
+    const remainingCount = this.data.remainingCount;
+    console.log('当前剩余次数:', remainingCount);
+    
+    if(remainingCount <= 0) {
+      wx.showModal({
+        title: '提示',
+        content: '您的创作次数已用完，观看一个广告可获得20次创作机会',
+        confirmText: '观看广告',
+        cancelText: '取消',
+        success: (res) => {
+          if(res.confirm) {
+            this.showRewardedVideoAd();
+          }
+        }
+      });
+      return true;
+    }
+    return false;
+  },
+
+  // 显示激励广告
+  showRewardedVideoAd() {
+    if(this.data.rewardedVideoAd) {
+      this.data.rewardedVideoAd.show()
+      .catch(() => {
+        // 失败重试
+        this.data.rewardedVideoAd.load()
+          .then(() => this.data.rewardedVideoAd.show())
+          .catch(err => {
+            console.error('激励广告展示失败', err);
+            // 广告展示失败时，也允许用户继续使用
+            this.setData({ useCount: 0 });
+            wx.setStorageSync('emojiUseCount', 0);
+            wx.showToast({
+              title: '广告展示失败，已重置使用次数',
+              icon: 'none',
+              duration: 2000
+            });
+          });
+      });
+    }
+  },
+  // 阻止事件冒泡的空函数
+  return() {
+    return;
+  },
+
+  // 显示编辑弹窗
+  showEditModal() {
+    this.setData({ 
+      showEditModal: true,
+      tempMainText: this.data.mainText,
+      tempCaptionText: this.data.captionText
+    });
+  },
+
+  // 隐藏编辑弹窗
+  hideEditModal() {
+    this.setData({ 
+      showEditModal: false,
+      mainText: this.data.tempMainText,
+      captionText: this.data.tempCaptionText
+    });
+  },
+
+  // 确认编辑内容
+  confirmEdit() {
+    this.setData({ 
+      showEditModal: false
+    });
+  },
+
+  // 清空编辑框文本
+  clearEditText() {
+    wx.showModal({
+      title: '确认清空',
+      content: '确定要清空当前输入的内容吗？',
+      confirmText: '清空',
+      confirmColor: '#f56c6c',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            mainText: ''
+          });
+        }
+      }
+    });
+  },
+
+  // 清空配文文本
+  clearCaptionText() {
+    wx.showModal({
+      title: '确认清空',
+      content: '确定要清空当前配文内容吗？',
+      confirmText: '清空',
+      confirmColor: '#f56c6c',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            captionText: ''
+          });
+        }
+      }
+    });
   }
 });
